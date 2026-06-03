@@ -1,0 +1,85 @@
+name: Monitor redcrawl
+
+# Scheduled gitpulse run that turns conversationHEALTH/redcrawl's git history into
+# an editorial story feed, published to GitHub Pages with client-side password
+# protection. The target repo is external, so we check it out alongside this repo's
+# .gitpulse.json and point the analyzer at it.
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: swoop-demo-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout swoop-demo (config)
+        uses: actions/checkout@v6
+
+      - name: Checkout target (conversationHEALTH/redcrawl)
+        uses: actions/checkout@v6
+        with:
+          repository: conversationHEALTH/redcrawl
+          token: ${{ secrets.TARGET_TOKEN }}
+          path: target
+          fetch-depth: 0
+
+      - name: Inject gitpulse config into target
+        run: cp .gitpulse.json target/.gitpulse.json
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Install gitpulse CLI
+        run: npm install -g @gitpulse/cli@0 --silent
+
+      - name: Analyze
+        run: gitpulse analyze
+        env:
+          GITPULSE_REPO_DIR: ${{ github.workspace }}/target
+          GITPULSE_DATA_DIR: ${{ github.workspace }}/.gitpulse/data
+          GITHUB_REPOSITORY: conversationHEALTH/redcrawl
+          GITHUB_TOKEN: ${{ secrets.TARGET_TOKEN }}
+          GITPULSE_SITE_URL: https://znat.github.io/swoop-demo/
+          GITPULSE_PASSWORD: ${{ secrets.GITPULSE_PASSWORD }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+
+      - name: Build (encrypted)
+        run: gitpulse build
+        env:
+          GITPULSE_REPO_DIR: ${{ github.workspace }}/target
+          GITPULSE_DATA_DIR: ${{ github.workspace }}/.gitpulse/data
+          GITPULSE_OUT_DIR: ${{ github.workspace }}/.gitpulse/out
+          GITPULSE_BASE_PATH: auto
+          GITPULSE_SITE_URL: https://znat.github.io/swoop-demo/
+          GITPULSE_PASSWORD: ${{ secrets.GITPULSE_PASSWORD }}
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./.gitpulse/out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

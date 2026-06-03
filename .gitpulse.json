@@ -1,0 +1,20 @@
+{
+  "publicationTitle": "The RedCrawl Dispatch",
+  "publicationSubtitle": "Development activity intelligence for conversationHEALTH/redcrawl",
+  "analysis": {
+    "bootstrapDays": 31
+  },
+  "theme": {
+    "accentColor": "#1C8ECE",
+    "linkColor": "#B3E821"
+  },
+  "text": {
+    "provider": "openai-compatible",
+    "model": "MiniMax-M3",
+    "baseURL": "https://api.minimax.io/v1"
+  },
+  "images": {
+    "storage": { "provider": "vercel-blob" },
+    "ai": { "provider": "gemini", "model": "gemini-3.1-flash-image-preview" }
+  }
+}
