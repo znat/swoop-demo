@@ -45,11 +45,13 @@ jobs:
         run: npm install -g @gitpulse/cli@0 --silent
 
       - name: Analyze
-        run: gitpulse analyze
+        # GITHUB_REPOSITORY is a reserved var the runner re-injects, so an `env:`
+        # override is ignored — set it inline on the command so the gitpulse
+        # process actually sees the target repo for PR/release GraphQL queries.
+        run: GITHUB_REPOSITORY=conversationHEALTH/Redcrawl gitpulse analyze
         env:
           GITPULSE_REPO_DIR: ${{ github.workspace }}/target
           GITPULSE_DATA_DIR: ${{ github.workspace }}/.gitpulse/data
-          GITHUB_REPOSITORY: conversationHEALTH/Redcrawl
           GITHUB_TOKEN: ${{ secrets.TARGET_TOKEN }}
           GITPULSE_SITE_URL: https://znat.github.io/swoop-demo/
           GITPULSE_PASSWORD: ${{ secrets.GITPULSE_PASSWORD }}
