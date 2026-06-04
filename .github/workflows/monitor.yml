@@ -29,7 +29,7 @@ jobs:
       - name: Checkout target (conversationHEALTH/redcrawl)
         uses: actions/checkout@v6
         with:
-          repository: conversationHEALTH/redcrawl
+          repository: conversationHEALTH/Redcrawl
           token: ${{ secrets.TARGET_TOKEN }}
           path: target
           fetch-depth: 0
@@ -49,7 +49,7 @@ jobs:
         env:
           GITPULSE_REPO_DIR: ${{ github.workspace }}/target
           GITPULSE_DATA_DIR: ${{ github.workspace }}/.gitpulse/data
-          GITHUB_REPOSITORY: conversationHEALTH/redcrawl
+          GITHUB_REPOSITORY: conversationHEALTH/Redcrawl
           GITHUB_TOKEN: ${{ secrets.TARGET_TOKEN }}
           GITPULSE_SITE_URL: https://znat.github.io/swoop-demo/
           GITPULSE_PASSWORD: ${{ secrets.GITPULSE_PASSWORD }}
