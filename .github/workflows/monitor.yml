@@ -60,18 +60,21 @@ jobs:
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
 
       - name: Build (encrypted)
+        # Do NOT set GITPULSE_OUT_DIR: the CLI passes it through to the cloned
+        # site build, where copy-json-routes.mjs misreads it as the export
+        # *source* dir and fails. Let outDir default to <repoDir>/.gitpulse/out
+        # (i.e. target/.gitpulse/out) and upload from there.
         run: gitpulse build
         env:
           GITPULSE_REPO_DIR: ${{ github.workspace }}/target
           GITPULSE_DATA_DIR: ${{ github.workspace }}/.gitpulse/data
-          GITPULSE_OUT_DIR: ${{ github.workspace }}/.gitpulse/out
           GITPULSE_BASE_PATH: auto
           GITPULSE_SITE_URL: https://znat.github.io/swoop-demo/
           GITPULSE_PASSWORD: ${{ secrets.GITPULSE_PASSWORD }}
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          path: ./.gitpulse/out
+          path: ./target/.gitpulse/out
 
   deploy:
     needs: build
