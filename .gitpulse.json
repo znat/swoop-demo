@@ -16,5 +16,9 @@
   "images": {
     "storage": { "provider": "vercel-blob" },
     "ai": { "provider": "gemini", "model": "gemini-3.1-flash-image-preview" }
+  },
+  "site": {
+    "repo": "znat/gitpulse",
+    "ref": "fix/empty-static-params"
   }
 }
